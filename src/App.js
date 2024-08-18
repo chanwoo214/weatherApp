@@ -11,39 +11,57 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // 5. when current location button is clicked, current location weather is shown 
 // 6. until data has been received, this is shown by loading spinner
 function App() {
-
   const [weather, setWeather] = useState(null);
-  const [city, setCity] = useState(" ");
+  const [city, setCity] = useState("");
+  const [loading, setLoading] = useState(true); // Loading state
   const cities = ['Paris', 'Sydney', 'Melbourne', 'Seoul', 'Los Angeles'];
-  
-  const getCurrentLocation = useCallback (() => {
-    navigator.geolocation.getCurrentPosition((position)=> {
-      let lat = position.coords.latitude
-      let lon = position.coords.longitude
-      getWeatherByCurrentLocation(lat, lon)
-    });
-  },[]);
 
   const getWeatherByCurrentLocation = async (lat, lon) => {
-    let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=9c50d93799569302b94e2ab396b348f9&units=metric`
-    let response = await fetch(url);
-    let data = await response.json();
-    setWeather(data);
-  }
+    setLoading(true); // Start loading
+    let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=9c50d93799569302b94e2ab396b348f9&units=metric`;
+    try {
+      let response = await fetch(url);
+      let data = await response.json();
 
-  useEffect (() => {
+      if (data && data.main && data.weather && data.weather[0]) {
+        setWeather(data);
+      } else {
+        setWeather(null);
+      }
+    } catch (error) {
+      console.error("Error fetching weather data:", error);
+      setWeather(null);
+    }
+    setLoading(false); // Stop loading
+  };
+
+  const getCurrentLocation = useCallback(() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      let lat = position.coords.latitude;
+      let lon = position.coords.longitude;
+      getWeatherByCurrentLocation(lat, lon);
+    });
+  }, []);
+
+  useEffect(() => {
     getCurrentLocation();
-  },[getCurrentLocation]);
+  }, [getCurrentLocation]);
 
-  useEffect (()=> {
-    console.log("city?" ,city)
-  },[city])
+  useEffect(() => {
+    console.log("city?", city);
+  }, [city]);
 
   return (
     <div>
-      <div class="container">
-      <WeatherBox weather = {weather}/>
-      <WeatherButton cities = {cities} setCity = {setCity}/>
+      <div className="container">
+        {loading ? ( 
+          <div className="spinner-border" role="status">
+            <span className="sr-only"></span>
+          </div>
+        ) : (
+          <WeatherBox weather={weather} />
+        )}
+        <WeatherButton cities={cities} setCity={setCity} />
       </div>
     </div>
   );
