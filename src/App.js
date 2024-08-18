@@ -12,6 +12,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // 5. when current location button is clicked, current location weather is shown 
 // 6. until data has been received, this is shown by loading spinner
 function App() {
+
+  const [weather, setWeather] = useState(null);
+  const cities = ['Paris', 'Seoul', 'Sydney']
   const getCurrentLocation = () => {
     navigator.geolocation.getCurrentPosition((position)=> {
       let lat = position.coords.latitude
@@ -21,21 +24,20 @@ function App() {
   }
 
   const getWeatherByCurrentLocation = async (lat, lon) => {
-    let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=9c50d93799569302b94e2ab396b348f9`
+    let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=9c50d93799569302b94e2ab396b348f9&units=metric`
     let response = await fetch(url)
     let data = await response.json();
-    console.log("data", data)
+    setWeather(data);
   }
 
   useEffect (() => {
-    getCurrentLocation()
-
-  },[])
+    getCurrentLocation();
+  },[]);
   return (
     <div>
       <div class="container">
-      <WeatherBox/>
-      <WeatherButton/>
+      <WeatherBox weather = {weather}/>
+      <WeatherButton cities={cities}/>
       </div>
     </div>
   );
