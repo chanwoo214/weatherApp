@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useEffect, useState, useCallback} from 'react';
 import WeatherBox from './component/WeatherBox';
 import WeatherButton from './component/WeatherButton';
 import './App.css';
@@ -17,13 +16,13 @@ function App() {
   const [city, setCity] = useState(" ");
   const cities = ['Paris', 'Sydney', 'Melbourne', 'Seoul', 'Los Angeles'];
   
-  const getCurrentLocation = () => {
+  const getCurrentLocation = useCallback (() => {
     navigator.geolocation.getCurrentPosition((position)=> {
       let lat = position.coords.latitude
       let lon = position.coords.longitude
       getWeatherByCurrentLocation(lat, lon)
     });
-  }
+  },[]);
 
   const getWeatherByCurrentLocation = async (lat, lon) => {
     let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=9c50d93799569302b94e2ab396b348f9&units=metric`
