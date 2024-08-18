@@ -16,6 +16,7 @@ function App() {
   const [weather, setWeather] = useState(null);
   const [city, setCity] = useState(" ");
   const cities = ['Paris', 'Sydney', 'Melbourne', 'Seoul', 'Los Angeles'];
+  
   const getCurrentLocation = () => {
     navigator.geolocation.getCurrentPosition((position)=> {
       let lat = position.coords.latitude
@@ -38,6 +39,7 @@ function App() {
   useEffect (()=> {
     console.log("city?" ,city)
   },[city])
+
   return (
     <div>
       <div class="container">
