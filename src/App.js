@@ -14,7 +14,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function App() {
 
   const [weather, setWeather] = useState(null);
-  const cities = ['Paris', 'Seoul', 'Sydney']
+  
   const getCurrentLocation = () => {
     navigator.geolocation.getCurrentPosition((position)=> {
       let lat = position.coords.latitude
@@ -37,7 +37,7 @@ function App() {
     <div>
       <div class="container">
       <WeatherBox weather = {weather}/>
-      <WeatherButton cities={cities}/>
+      <WeatherButton />
       </div>
     </div>
   );
