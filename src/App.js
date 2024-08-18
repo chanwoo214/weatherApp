@@ -34,7 +34,7 @@ function App() {
 
   useEffect (() => {
     getCurrentLocation();
-  },[]);
+  },[getCurrentLocation]);
 
   useEffect (()=> {
     console.log("city?" ,city)
