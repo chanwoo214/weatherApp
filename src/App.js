@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback} from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import WeatherBox from './component/WeatherBox';
 import WeatherButton from './component/WeatherButton';
 import './App.css';
@@ -15,6 +15,7 @@ function App() {
   const [city, setCity] = useState("");
   const [loading, setLoading] = useState(true); // Loading state
   const cities = ['Paris', 'Sydney', 'Melbourne', 'Seoul', 'Los Angeles'];
+  
 
   const getWeatherByCurrentLocation = async (lat, lon) => {
     setLoading(true); // Start loading
@@ -43,26 +44,59 @@ function App() {
     });
   }, []);
 
-  useEffect(() => {
-    getCurrentLocation();
-  }, [getCurrentLocation]);
+  const getWeatherByCity = async () => {
+    let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=9c50d93799569302b94e2ab396b348f9&units=metric`;
+    setLoading(true);
+    try {
+      let response = await fetch(url);
+      if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+      let data = await response.json();
+      setWeather(data);
+  } catch (error) {
+      console.error("Failed to fetch weather data:", error);
+      // Optionally, you can set an error state here to display a message to the user
+      setError("Failed to fetch weather data. Please try again later.");
+  } finally {
+      setLoading(false);
+  }
+};
+
 
   useEffect(() => {
-    console.log("city?", city);
+    if (city == null) {
+      setLoading(true);
+      getCurrentLocation();
+    } else {
+      setLoading(true);
+      getWeatherByCity();
+    }
   }, [city]);
+
+  const handleCityChange = (city) => {
+    if (city === "current") {
+      setCity (null);
+    } else {
+      setCity(city);
+    }
+  };
+
 
   return (
     <div>
-      <div className="container">
-        {loading ? ( 
+      {loading ? (
+        <div className="container">
           <div className="spinner-border" role="status">
             <span className="sr-only"></span>
           </div>
-        ) : (
+        </div>
+      ) : (
+        <div className="container">
           <WeatherBox weather={weather} />
-        )}
-        <WeatherButton cities={cities} setCity={setCity} />
-      </div>
+          <WeatherButton cities={cities} handleCityChange = {handleCityChange} selectedCity={city} />
+        </div>
+      )}
     </div>
   );
 }
