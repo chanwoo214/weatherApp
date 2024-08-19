@@ -14,14 +14,18 @@ function App() {
   const [weather, setWeather] = useState(null);
   const [city, setCity] = useState("");
   const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
   const cities = ['Paris', 'Sydney', 'Melbourne', 'Seoul', 'Los Angeles'];
-  
 
   const getWeatherByCurrentLocation = async (lat, lon) => {
     setLoading(true); // Start loading
+    setError(null); // Reset any previous error
     let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=9c50d93799569302b94e2ab396b348f9&units=metric`;
     try {
       let response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
       let data = await response.json();
 
       if (data && data.main && data.weather && data.weather[0]) {
@@ -31,9 +35,11 @@ function App() {
       }
     } catch (error) {
       console.error("Error fetching weather data:", error);
+      setError("Failed to fetch weather data. Please try again later.");
       setWeather(null);
+    } finally {
+      setLoading(false); // Stop loading
     }
-    setLoading(false); // Stop loading
   };
 
   const getCurrentLocation = useCallback(() => {
@@ -41,47 +47,47 @@ function App() {
       let lat = position.coords.latitude;
       let lon = position.coords.longitude;
       getWeatherByCurrentLocation(lat, lon);
+    }, (error) => {
+      console.error("Error getting current location:", error);
+      setError("Unable to retrieve your current location. Please try again.");
+      setLoading(false);
     });
   }, []);
 
   const getWeatherByCity = async () => {
     let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=9c50d93799569302b94e2ab396b348f9&units=metric`;
     setLoading(true);
+    setError(null); // Reset any previous error
     try {
       let response = await fetch(url);
       if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
       let data = await response.json();
       setWeather(data);
-  } catch (error) {
+    } catch (error) {
       console.error("Failed to fetch weather data:", error);
-      // Optionally, you can set an error state here to display a message to the user
       setError("Failed to fetch weather data. Please try again later.");
-  } finally {
+    } finally {
       setLoading(false);
-  }
-};
-
+    }
+  };
 
   useEffect(() => {
-    if (city == null) {
-      setLoading(true);
+    if (city === null) {
       getCurrentLocation();
     } else {
-      setLoading(true);
       getWeatherByCity();
     }
-  }, [city]);
+  }, [city, getCurrentLocation]);
 
   const handleCityChange = (city) => {
     if (city === "current") {
-      setCity (null);
+      setCity(null);
     } else {
       setCity(city);
     }
   };
-
 
   return (
     <div>
@@ -91,10 +97,16 @@ function App() {
             <span className="sr-only"></span>
           </div>
         </div>
+      ) : error ? (
+        <div className="container">
+          <div className="alert alert-danger" role="alert">
+            {error}
+          </div>
+        </div>
       ) : (
         <div className="container">
           <WeatherBox weather={weather} />
-          <WeatherButton cities={cities} handleCityChange = {handleCityChange} selectedCity={city} />
+          <WeatherButton cities={cities} handleCityChange={handleCityChange} selectedCity={city} />
         </div>
       )}
     </div>
