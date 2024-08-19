@@ -10,16 +10,17 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // 4. when location is selected, selected city's weather is shown
 // 5. when current location button is clicked, current location weather is shown 
 // 6. until data has been received, this is shown by loading spinner
+
 function App() {
   const [weather, setWeather] = useState(null);
-  const [city, setCity] = useState("");
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [city, setCity] = useState(null); // Default to null for current location
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null); 
   const cities = ['Paris', 'Sydney', 'Melbourne', 'Seoul', 'Los Angeles'];
 
   const getWeatherByCurrentLocation = async (lat, lon) => {
-    setLoading(true); // Start loading
-    setError(null); // Reset any previous error
+    setLoading(true); 
+    setError(null); 
     let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=9c50d93799569302b94e2ab396b348f9&units=metric`;
     try {
       let response = await fetch(url);
@@ -27,37 +28,36 @@ function App() {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
       let data = await response.json();
-
-      if (data && data.main && data.weather && data.weather[0]) {
-        setWeather(data);
-      } else {
-        setWeather(null);
-      }
+      setWeather(data);
     } catch (error) {
       console.error("Error fetching weather data:", error);
       setError("Failed to fetch weather data. Please try again later.");
-      setWeather(null);
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false); 
     }
   };
 
   const getCurrentLocation = useCallback(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      let lat = position.coords.latitude;
-      let lon = position.coords.longitude;
-      getWeatherByCurrentLocation(lat, lon);
-    }, (error) => {
-      console.error("Error getting current location:", error);
-      setError("Unable to retrieve your current location. Please try again.");
-      setLoading(false);
-    });
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        let lat = position.coords.latitude;
+        let lon = position.coords.longitude;
+        getWeatherByCurrentLocation(lat, lon);
+      },
+      (error) => {
+        console.error("Error getting current location:", error);
+        setError("Unable to retrieve your current location. Please try again.");
+        setLoading(false);
+      }
+    );
   }, []);
 
   const getWeatherByCity = async () => {
+    if (!city) return; // Don't make the API call if the city is not set
+
     let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=9c50d93799569302b94e2ab396b348f9&units=metric`;
     setLoading(true);
-    setError(null); // Reset any previous error
+    setError(null); 
     try {
       let response = await fetch(url);
       if (!response.ok) {
@@ -75,17 +75,17 @@ function App() {
 
   useEffect(() => {
     if (city === null) {
-      getCurrentLocation();
+      getCurrentLocation(); // Fetch weather by current location if city is not set
     } else {
-      getWeatherByCity();
+      getWeatherByCity(); // Fetch weather by city
     }
   }, [city, getCurrentLocation]);
 
-  const handleCityChange = (city) => {
-    if (city === "current") {
-      setCity(null);
+  const handleCityChange = (selectedCity) => {
+    if (selectedCity === "current") {
+      setCity(null); 
     } else {
-      setCity(city);
+      setCity(selectedCity);
     }
   };
 
