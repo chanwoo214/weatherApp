@@ -1,27 +1,57 @@
 body {
   background: url(https://img.pikbest.com/wp/202347/weather-forecast-app-3d-illustration-of-icons-depicting-sun-and-clouds-ideal-for-design-web-with-blue-background_9761677.jpg!bw700);
   height: 100vh;
-  /*view height*/
   background-repeat: no-repeat;
   background-size: cover;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .container {
   display: flex;
   justify-content: center;
-  /* horizontal center */
   align-items: center;
-  /* vertical center */
-  height: 100vh;
   flex-direction: column;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  box-sizing: border-box;
 }
 
 .weather-box {
   border: 3px solid grey;
-  padding: 50px;
-  border-radius: 30px;
+  padding: 20px;
+  border-radius: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.8); /* Optional: adds a slight background to the box */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center; /* Center text content */
 }
 
 .weather-button button {
   margin: 5px;
+  padding: 10px 20px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 600px;
+  }
+
+  .weather-box {
+    padding: 30px;
+    border-radius: 25px;
+  }
+
+  .weather-button button {
+    width: auto;
+  }
 }
